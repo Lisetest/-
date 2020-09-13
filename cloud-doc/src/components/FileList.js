@@ -5,6 +5,7 @@ import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 import PropTypes from 'prop-types'
 import useKeyPress from '../hooks/useKeyPress'
 import useContextMenu from '../hooks/useContextMenu'
+import {getParentNode} from '../utils/helper'
 
 const {remote} = window.require('electron')
 const {Menu,MenuItem} = remote
@@ -28,22 +29,26 @@ const FileList = ({files,onFileClick,onSaveEdit,onFileDelete})=>{
         {
             label: "打开",
             click: () => {
-                console.log('open',clickItem.current)
+                const parentElement = getParentNode(clickItem.current,'file-item')
+                onFileClick(parentElement.dataset.id)
             }
         },
         {
             label: "重命名",
             click: () => {
-                console.log('rename')
+                const parentElement = getParentNode(clickItem.current,'file-item')
+                setEditStatus(parentElement.dataset.id)
+                setValue(parentElement.dataset.title)
             }
         },
         {
             label: "删除",
             click: () => {
-                console.log('delete')
+                const parentElement = getParentNode(clickItem.current, 'file-item')
+                onFileDelete(parentElement.dataset.id)
             }
         },
-    ],'.file-list')
+    ],'.file-list',[files])
     useEffect(() => {
         const edititem = files.find(file => file.id === editstatus)
         if (enterKeyPress && editstatus && value.trim()!=='')
@@ -83,6 +88,8 @@ const FileList = ({files,onFileClick,onSaveEdit,onFileDelete})=>{
                     <li
                         className=" mx-0 list-group-item bg-light d-flex row justify-content-between justify-content-center align-items-cente file-item"
                         key = {file.id}
+                        data-id = {file.id}
+                        data-title={file.title}
                     >   
                         { ((file.id !== editstatus) && !file.isNew) &&
                         <>
@@ -91,47 +98,21 @@ const FileList = ({files,onFileClick,onSaveEdit,onFileDelete})=>{
                                     size='lg'
                                     icon={faMarkdown} />
                             </span>
-                            <span className="col-6 c-link"
+                            <span className="col-10 c-link"
                             onClick={()=>{onFileClick(file.id)}}>{file.title}</span>
-                            <button
-                                type="button"
-                                className="icon-button col-2"
-                                onClick={(e) => {setEditStatus(file.id); setValue(file.title)}}>
-                                <FontAwesomeIcon
-                                    title="编辑"
-                                    size='lg'
-                                    icon={faEdit} />
-                            </button>
-                            <button
-                                type="button"
-                                className="icon-button col-2"
-                                onClick={() => {onFileDelete(file.id)}}>
-                                <FontAwesomeIcon
-                                    title="删除"
-                                    size='lg'
-                                    icon={faTrash} />
-                            </button>
+                        
                         </>
                         }
                         {((file.id === editstatus) || (file.isNew && file.id === editstatus)) &&
                         <>
                             <input
-                                className="form-control col-10 "
+                                className="form-control col-12 "
                                 value={value}
                                 ref={node}
                                 placeholder = "请输入文件名称"
                                 onChange={(e) => { setValue(e.target.value) }}
                             />
-                            <button
-                                type="button"
-                                className="icon-button col-2"
-                                onClick = {(e)=>{closeSearch(file);}}
-                                >
-                                <FontAwesomeIcon
-                                    title = "关闭"
-                                    size='lg'
-                                    icon={faTimes} />
-                            </button>
+                            
                         </>
                         }
 

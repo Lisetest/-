@@ -21,7 +21,6 @@ const fileStore  = new Store({'name':'File Data'})
 
 
 function App() {
-  console.log('render is runing')
   //变量
   const [files, setFiles] = useState(fileStore.get('files') || {})
   const [activeFileID, setActiveFileID] = useState('')
@@ -137,7 +136,7 @@ function App() {
   }
 
   const updateFileName = (id,title, isNew)=>{
-    if (filesArr.find(file=>file.title == title && file.id!==id)){
+    if (filesArr.find(file=>file.title === title && file.id!==id)){
       return 
     }
     const newPath = isNew ? join(savedLocation, `${title}.md`):
@@ -157,8 +156,6 @@ function App() {
     }
     setFiles(newFiles)
     saveFiletoStore(newFiles)  
-    console.log(newPath)
-
   }
 
   const tabClick = (fileID)=>{
@@ -175,7 +172,7 @@ function App() {
     }
     else
     {
-      setActiveFileID('')
+      setActiveFileID(false)
     }
   }
 
