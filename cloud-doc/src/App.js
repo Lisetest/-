@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import Filesearch from './components/Filesearch'
@@ -11,11 +11,11 @@ import "easymde/dist/easymde.min.css"
 import v4 from 'uuid/dist/v4'
 import { objToArr, flattenArr} from './utils/helper'
 import fileHelper from './utils/fileHelper'
+import useIpcRenderer from './hooks/useIpcRenderer'
 
 const Store = window.require('electron-store')
-const {remote} = window.require('electron') 
+const {remote,ipcRenderer} = window.require('electron') 
 const {join,basename,extname,dirname} = window.require('path') //使用node.js 的模块
-
 const fileStore  = new Store({'name':'File Data'})
 
 
@@ -130,6 +130,7 @@ function App() {
 }
 
   const saveCurrentFile = ()=>{
+    console.log(888)
     fileHelper.writeFile(activeFile.path, activeFile.body).then(()=>{
       setunsavedFileIDs(unsavedFileIDs.filter(id=>id!==activeFile.id))
     })
@@ -178,11 +179,13 @@ function App() {
 
   const fileChange =(id,value)=>{
     // files[id].body = value 不建议这种写法
-    const newFile = {...files[id],body:value}
-    setFiles({...files,[id]:newFile})
-    //更新 unsavedIDs
-    if (!unsavedFileIDs.includes(id)){
-      setunsavedFileIDs([...unsavedFileIDs,id])
+    if(value !== files[id].body){
+      const newFile = { ...files[id], body: value }
+      setFiles({ ...files, [id]: newFile })
+      //更新 unsavedIDs
+      if (!unsavedFileIDs.includes(id)) {
+        setunsavedFileIDs([...unsavedFileIDs, id])
+      }
     }
   }
 
@@ -212,6 +215,11 @@ function App() {
     
   }
 
+useIpcRenderer({
+  'create-new-file':createNewFile,
+  'import-file':importFiles,
+  'save-edit-file':saveCurrentFile
+})
 
   return (
     <div className="App container-fluid px-0 ">
@@ -271,13 +279,6 @@ function App() {
               minHeight:'460px',
             }}
            ></SimpleMDE>
-              <ButtonBtn
-                text="导入"
-                colorClass="btn-success"
-                icon={faSave}
-                onBtnClick={saveCurrentFile}
-              >
-              </ButtonBtn>
            </div>
           </>}
         </div>
