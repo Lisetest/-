@@ -17,6 +17,7 @@ const Store = window.require('electron-store')
 const {remote,ipcRenderer} = window.require('electron') 
 const {join,basename,extname,dirname} = window.require('path') //使用node.js 的模块
 const fileStore  = new Store({'name':'File Data'})
+const settingsStore = new Store({name:'Settings'})
 
 
 
@@ -28,7 +29,8 @@ function App() {
   const [unsavedFileIDs,setunsavedFileIDs] = useState([])
   const [searchFiles,setSearchFiles] = useState([])
   const filesArr = objToArr(files)
-  const savedLocation =   remote.app.getPath('documents')
+  const savedLocation = settingsStore.get('savedFileLocation')||
+   remote.app.getPath('documents')
 
   const activeFile = files[activeFileID]
   const openedFiles = openedFileIDs.map(openID => {

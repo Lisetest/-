@@ -195,7 +195,7 @@ module.exports = function (app, shell,ipcMain) {
             label:'设置',
             accelerator:'Ctrl+,',
             click:()=>{
-                ipcMain.emit('open-settings-widnow')
+                ipcMain.emit('open-settings-window')
             }
         })
     }

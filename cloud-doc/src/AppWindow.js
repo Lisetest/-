@@ -7,7 +7,17 @@ class AppWindow extends BrowserWindow{
             hegiht:600,
             webPreferences:{
                 nodeIntegration:true,
-            }
+            },
+            show:false,
+            backgroudColor:'#efefe',
         }
+        const finalConfig = {...basicConfig,...config}
+        super(finalConfig)
+        this.loadURL(urlLocation)
+        this.once('ready-to-show',()=>{
+            this.show()
+        })
     }
 }
+
+module.exports = AppWindow
